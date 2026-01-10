@@ -1,1 +1,65 @@
 @import "tailwindcss";
+
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: 255 255 255;
+  --text: 24 24 27;
+  --primary: 99 102 241;
+
+  --scroll-track: #f4f4f5;
+  --scroll-thumb: rgba(99, 102, 241, 0.45);
+  --scroll-thumb-hover: rgba(79, 70, 229, 0.7);
+}
+
+.dark {
+  --bg: 9 9 11;
+  --text: 244 244 245;
+  --primary: 129 140 248;
+
+  --scroll-track: #09090b;
+  --scroll-thumb: rgba(23, 23, 43, 0.55);
+  --scroll-thumb-hover: rgba(0, 0, 0, 0.85);
+}
+
+.pink {
+  --bg: 255 240 246;
+  --text: 88 28 64;
+  --primary: 236 72 153;
+
+  --scroll-track: #fff0f6;
+  --scroll-thumb: rgba(236, 72, 153, 0.55);
+  --scroll-thumb-hover: rgba(219, 39, 119, 0.8);
+}
+
+
+html,
+body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--text));
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scroll-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scroll-thumb);
+  border-radius: 9999px;
+  border: 2px solid var(--scroll-track);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scroll-thumb-hover);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+}

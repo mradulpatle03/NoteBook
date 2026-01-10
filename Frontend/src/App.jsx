@@ -1,10 +1,21 @@
 import React from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import AuthLayout from './layouts/AuthLayout'
 
 const App = () => {
   return (
-    <div>
-        <h1 className='text-3xl font-bold underline'>App</h1> 
-    </div>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<AuthLayout />}>
+            <Route path='/login' element={<LoginPage />} />
+            <Route path='/register' element={<RegisterPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </>
   )
 }
 
