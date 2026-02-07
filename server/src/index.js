@@ -7,6 +7,7 @@ import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";
 import habitRouter from "./routes/habit.route.js";
 import activityRouter from "./routes/activity.route.js";
+import statsRouter from "./routes/stats.routes.js";
 
 console.log("Environment Variable:", process.env.PORT);
 const PORT = process.env.PORT || 8001
@@ -26,7 +27,7 @@ app.use("/auth", authRouter);
 app.use("/users", userRouter);
 app.use("/habits",habitRouter);
 app.use("/activity", activityRouter);
-
+app.use("/stats", statsRouter);
 
 app.use("/", (req,res)=>{
     res.send("Welcome to Habit Tracker App Server")
