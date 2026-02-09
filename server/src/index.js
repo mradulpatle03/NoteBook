@@ -10,6 +10,7 @@ import activityRouter from "./routes/activity.route.js";
 import statsRouter from "./routes/stats.routes.js";
 import streakRouter from "./routes/streak.routes.js";
 import heatmapRouter from "./routes/heatmap.route.js";
+import proofRouter from "./routes/proof.routes.js";
 
 console.log("Environment Variable:", process.env.PORT);
 const PORT = process.env.PORT || 8001
@@ -32,6 +33,7 @@ app.use("/activity", activityRouter);
 app.use("/stats", statsRouter);
 app.use("/streak", streakRouter);
 app.use("/heatmap", heatmapRouter);
+app.use("/proof", proofRouter);
 
 app.use("/", (req,res)=>{
     res.send("Welcome to Habit Tracker App Server")
