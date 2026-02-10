@@ -34,6 +34,7 @@ app.use("/stats", statsRouter);
 app.use("/streak", streakRouter);
 app.use("/heatmap", heatmapRouter);
 app.use("/proof", proofRouter);
+app.use("/teams", teamRouter);
 
 app.use("/", (req,res)=>{
     res.send("Welcome to Habit Tracker App Server")
