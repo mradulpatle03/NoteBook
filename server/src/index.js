@@ -13,6 +13,7 @@ import heatmapRouter from "./routes/heatmap.route.js";
 import proofRouter from "./routes/proof.routes.js";
 import teamRouter from "./routes/team.route.js";
 import teamInviteRouter from "./routes/teamInvite.route.js";
+import viewsRouter from "./routes/views.routes.js";
 
 
 console.log("Environment Variable:", process.env.PORT);
@@ -39,6 +40,7 @@ app.use("/heatmap", heatmapRouter);
 app.use("/proof", proofRouter);
 app.use("/teams", teamRouter);
 app.use("/team-invites", teamInviteRouter);
+app.use("/views", viewsRouter);
 
 app.use("/", (req,res)=>{
     res.send("Welcome to Habit Tracker App Server")
