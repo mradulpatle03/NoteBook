@@ -11,8 +11,8 @@ import statsRouter from "./routes/stats.routes.js";
 import streakRouter from "./routes/streak.routes.js";
 import heatmapRouter from "./routes/heatmap.route.js";
 import proofRouter from "./routes/proof.routes.js";
-import teamRouter from "./routes/team.route.js";
-import teamInviteRouter from "./routes/teamInvite.route.js";
+import teamRouter from "./routes/team.routes.js";
+import teamInviteRouter from "./routes/teamInvite.routes.js";
 import viewsRouter from "./routes/views.routes.js";
 
 
