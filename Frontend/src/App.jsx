@@ -6,6 +6,9 @@ import AuthLayout from './layouts/AuthLayout'
 import AppLayout from './layouts/AppLayout'
 import IntroPage from './pages/IntroPage'
 import PublicRoute from './routes/PublicRoute'
+import ProtectedRoute from './routes/ProtectedRoute'
+import Dashboard from './pages/DashboardPage'
+import DashboardLayout from './layouts/DashboardLayout'
 
 const App = () => {
   return (
@@ -21,6 +24,14 @@ const App = () => {
               <Route path='/login' element={<LoginPage />} />
               <Route path='/register' element={<RegisterPage />} />
             </Route>
+          </Route>
+
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+              <Route element={<DashboardLayout />}>
+                <Route path='/dashboard' element={<Dashboard />} />
+              </Route>
+            </Route>  
           </Route>
         </Routes>
       </BrowserRouter>

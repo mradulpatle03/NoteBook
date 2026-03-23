@@ -6,11 +6,9 @@ export default function IntroPage() {
     <div className="relative overflow-hidden bg-white text-[#6E6E6E] dark:bg-[#0f0f0f] dark:text-white">
       {/* BACKGROUND ACCENTS */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* LIGHT */}
         <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-[#BAFF39]/20 blur-3xl" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-gray-300/30 blur-3xl" />
 
-        {/* DARK */}
         <div className="hidden dark:block absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-[#BAFF39]/10 blur-3xl" />
         <div className="hidden dark:block absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-gray-700/20 blur-3xl" />
       </div>
@@ -27,7 +25,9 @@ export default function IntroPage() {
           <h1 className="text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight text-black dark:text-white">
             Build habits that
             <br />
-            <span className="text-[#BAFF39]">prove consistency.</span>
+            <span className="text-[#BAFF39] drop-shadow-[0_0_10px_rgba(186,255,57,0.4)]">
+              prove consistency.
+            </span>
           </h1>
 
           <p className="mt-6 text-lg text-[#6E6E6E] dark:text-gray-400 max-w-xl leading-relaxed">
@@ -39,7 +39,7 @@ export default function IntroPage() {
           <div className="mt-12 flex flex-wrap gap-5">
             <Link
               to="/register"
-              className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#BAFF39] text-black shadow-lg hover:scale-[1.03] transition font-medium"
+              className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#BAFF39] text-black shadow-lg font-medium hover:scale-[1.04] active:scale-[0.98] transition-transform duration-200"
             >
               Start Tracking
               <ArrowRight
@@ -57,19 +57,35 @@ export default function IntroPage() {
           </div>
         </div>
 
-        {/* RIGHT */}
-        <div className="hidden lg:block">
-          <div className="rounded-3xl p-7 bg-white/80 dark:bg-white/5 backdrop-blur-xl border border-gray-200 dark:border-gray-800 shadow-xl">
-            <div className="text-sm text-[#6E6E6E] dark:text-gray-400 mb-5 text-center">
-              ~Tracker
-            </div>
+        {/* RIGHT (IMPROVED CARD) */}
+        <div className="hidden lg:flex justify-center">
+          <div className="relative w-[420px] h-[520px]">
+            {/* GLOW */}
+            <div className="absolute inset-0 rounded-[2.5rem] bg-[#BAFF39]/20 blur-3xl opacity-60" />
 
-            <div className="flex justify-center items-center">
-              <img
-                className="h-96 w-96 object-contain drop-shadow-lg"
-                src="/meditating.webp"
-                alt=""
-              />
+            {/* CARD */}
+            <div className="relative h-full rounded-[2.5rem] p-6 bg-white/70 dark:bg-white/5 backdrop-blur-2xl border border-gray-200 dark:border-gray-800 shadow-2xl flex flex-col justify-between">
+              {/* HEADER */}
+              <div className="flex items-center justify-between text-sm text-[#6E6E6E] dark:text-gray-400">
+                <span>~Tracker</span>
+                <span className="text-[#BAFF39] text-xs font-medium">LIVE</span>
+              </div>
+
+              {/* IMAGE */}
+              <div className="flex justify-center items-center -mt-4">
+                <img
+                  className="h-64 object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.25)]"
+                  src="/meditating.webp"
+                  alt=""
+                />
+              </div>
+
+              {/* MOCK DATA */}
+              <div className="space-y-3 mt-4">
+                <MockHabit title="Morning Workout" streak={12} />
+                <MockHabit title="Deep Work" streak={8} />
+                <MockHabit title="Reading" streak={21} />
+              </div>
             </div>
           </div>
         </div>
@@ -77,35 +93,82 @@ export default function IntroPage() {
 
       {/* FEATURES */}
       <section className="relative z-10 border-t border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-6 py-28">
-          <h2 className="text-3xl font-semibold mb-14 text-black dark:text-white">
-            Designed for long-term discipline
-          </h2>
+        <div className="max-w-7xl mx-auto px-6 py-20 md:py-28">
+          {/* HEADER */}
+          <div className="max-w-2xl mb-14 md:mb-20">
+            <span className="text-xs tracking-widest uppercase text-[#6E6E6E] dark:text-gray-400">
+              System over motivation
+            </span>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <Feature
-              icon={<Flame />}
-              title="Streak-Driven Habits"
-              desc="Miss a day and the streak breaks. No excuses. Just truth."
-            />
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mt-3 text-black dark:text-white leading-tight">
+              Built for people who
+              <span className="text-[#BAFF39]"> show up daily.</span>
+            </h2>
 
-            <Feature
-              icon={<Calendar />}
-              title="Daily Proof System"
-              desc="Every habit is logged day by day. Consistency is visible."
-            />
+            <p className="mt-4 md:mt-6 text-base md:text-lg text-[#6E6E6E] dark:text-gray-400 leading-relaxed">
+              Motivation fades. Systems don’t. HabTrack makes discipline
+              visible, measurable, and impossible to ignore.
+            </p>
+          </div>
 
-            <Feature
-              icon={<Shield />}
-              title="Credibility Score"
-              desc="Your discipline compounds into a public credibility signal."
-            />
+          {/* GRID */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-start">
+            {/* LEFT - FEATURES */}
+            <div className="space-y-5 md:space-y-6">
+              <Feature
+                icon={<Flame />}
+                title="Streak-Driven Habits"
+                desc="Break the chain, lose the streak. It forces honesty."
+              />
+              <Feature
+                icon={<Calendar />}
+                title="Daily Proof System"
+                desc="Every action is logged. Your effort becomes visible."
+              />
+              <Feature
+                icon={<Shield />}
+                title="Credibility Score"
+                desc="Consistency builds trust — with yourself."
+              />
+            </div>
+
+            {/* RIGHT - CARD */}
+            <div className="relative w-full">
+              {/* glow (scaled down on mobile) */}
+              <div className="absolute inset-0 bg-[#BAFF39]/10 blur-2xl md:blur-3xl rounded-2xl md:rounded-3xl" />
+
+              <div className="relative rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-8 bg-white/80 dark:bg-white/5 backdrop-blur-xl border border-gray-200 dark:border-gray-800 shadow-lg md:shadow-xl">
+                <h3 className="text-lg md:text-xl font-semibold text-black dark:text-white mb-3 md:mb-4">
+                  Why this works
+                </h3>
+
+                <div className="space-y-3 md:space-y-5 text-sm md:text-base text-[#6E6E6E] dark:text-gray-400 leading-relaxed">
+                  <p>
+                    Most habit apps rely on motivation. That’s why they fail.
+                  </p>
+                  <p>
+                    HabTrack forces accountability through visible proof and
+                    streak pressure.
+                  </p>
+                  <p className="text-black dark:text-white font-medium">
+                    You don’t feel disciplined — you become disciplined.
+                  </p>
+                </div>
+
+                {/* STATS */}
+                <div className="mt-6 md:mt-8 grid grid-cols-3 gap-3 md:gap-4">
+                  <Stat label="Routine" value="100%" />
+                  <Stat label="Excuses" value="0%" />
+                  <Stat label="Proof" value="Daily" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="text-center py-12 text-xs text-[#6E6E6E] dark:text-gray-500 border-t border-gray-200 dark:border-gray-800">
+      <footer className="text-center py-12 text-xs text-[#6E6E6E] dark:text-gray-500">
         Built for people who value discipline over motivation.
       </footer>
     </div>
@@ -114,16 +177,19 @@ export default function IntroPage() {
 
 function Feature({ icon, title, desc }) {
   return (
-    <div className="rounded-2xl p-7 bg-white/80 dark:bg-white/5 backdrop-blur-xl border border-gray-200 dark:border-gray-800 hover:scale-[1.02] transition">
-      <div className="w-11 h-11 flex items-center justify-center rounded-xl bg-[#BAFF39] text-black mb-5 shadow-md">
+    <div className="flex gap-4 items-start rounded-xl md:rounded-2xl p-4 md:p-5 bg-white/80 dark:bg-white/5 backdrop-blur-xl border border-gray-200 dark:border-gray-800 hover:scale-[1.02] transition">
+      <div className="min-w-[40px] h-10 flex items-center justify-center rounded-lg bg-[#BAFF39] text-black shadow-sm">
         {icon}
       </div>
-      <h3 className="text-lg font-semibold mb-2 text-black dark:text-white">
-        {title}
-      </h3>
-      <p className="text-sm text-[#6E6E6E] dark:text-gray-400 leading-relaxed">
-        {desc}
-      </p>
+
+      <div>
+        <h3 className="text-sm md:text-base font-semibold text-black dark:text-white">
+          {title}
+        </h3>
+        <p className="text-xs md:text-sm text-[#6E6E6E] dark:text-gray-400 mt-1 leading-relaxed">
+          {desc}
+        </p>
+      </div>
     </div>
   );
 }
@@ -135,6 +201,19 @@ function MockHabit({ title, streak }) {
       <span className="text-xs font-medium text-[#BAFF39]">
         {streak} day streak
       </span>
+    </div>
+  );
+}
+
+function Stat({ label, value }) {
+  return (
+    <div className="rounded-lg md:rounded-xl p-3 md:p-4 text-center bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-gray-800">
+      <div className="text-sm md:text-lg font-semibold text-black dark:text-white">
+        {value}
+      </div>
+      <div className="text-[10px] md:text-xs text-[#6E6E6E] dark:text-gray-400 mt-1">
+        {label}
+      </div>
     </div>
   );
 }
