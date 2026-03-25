@@ -10,6 +10,7 @@ import ProtectedRoute from './routes/ProtectedRoute'
 import Dashboard from './pages/DashboardPage'
 import DashboardLayout from './layouts/DashboardLayout'
 import ProfilePage from "./pages/ProfilePage";
+import UsersPage from "./pages/UsersPage";
 
 const App = () => {
   return (
@@ -34,6 +35,8 @@ const App = () => {
 
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/u/:username" element={<ProfilePage />} />
+
+                <Route path="/users" element={<UsersPage />} />
               </Route>
             </Route>  
           </Route>
