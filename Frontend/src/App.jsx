@@ -9,6 +9,7 @@ import PublicRoute from './routes/PublicRoute'
 import ProtectedRoute from './routes/ProtectedRoute'
 import Dashboard from './pages/DashboardPage'
 import DashboardLayout from './layouts/DashboardLayout'
+import ProfilePage from "./pages/ProfilePage";
 
 const App = () => {
   return (
@@ -30,6 +31,9 @@ const App = () => {
             <Route element={<AppLayout />}>
               <Route element={<DashboardLayout />}>
                 <Route path='/dashboard' element={<Dashboard />} />
+
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/u/:username" element={<ProfilePage />} />
               </Route>
             </Route>  
           </Route>
