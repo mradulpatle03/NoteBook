@@ -11,6 +11,8 @@ import Dashboard from './pages/DashboardPage'
 import DashboardLayout from './layouts/DashboardLayout'
 import ProfilePage from "./pages/ProfilePage";
 import UsersPage from "./pages/UsersPage";
+import TeamsPage from "./pages/TeamsPage";
+import TeamPage from "./pages/TeamPage";
 
 const App = () => {
   return (
@@ -37,6 +39,9 @@ const App = () => {
                 <Route path="/u/:username" element={<ProfilePage />} />
 
                 <Route path="/users" element={<UsersPage />} />
+
+                <Route path="/teams" element={<TeamsPage />} />
+                <Route path="/teams/:teamId" element={<TeamPage />} />
               </Route>
             </Route>  
           </Route>
