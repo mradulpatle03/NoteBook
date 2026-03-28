@@ -13,6 +13,7 @@ import ProfilePage from "./pages/ProfilePage";
 import UsersPage from "./pages/UsersPage";
 import TeamsPage from "./pages/TeamsPage";
 import TeamPage from "./pages/TeamPage";
+import ProjectPage from "./pages/ProjectPage";
 
 const App = () => {
   return (
@@ -42,6 +43,7 @@ const App = () => {
 
                 <Route path="/teams" element={<TeamsPage />} />
                 <Route path="/teams/:teamId" element={<TeamPage />} />
+                <Route path="/projects" element={<ProjectPage />} />
               </Route>
             </Route>  
           </Route>
