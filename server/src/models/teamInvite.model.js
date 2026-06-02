@@ -17,7 +17,7 @@ const teamInviteSchema = new mongoose.Schema(
     invitedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true, // 👈 you WANT this
+      required: true,
     },
 
     status: {

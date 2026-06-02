@@ -1,56 +1,85 @@
-import React from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import AuthLayout from './layouts/AuthLayout'
-import AppLayout from './layouts/AppLayout'
-import IntroPage from './pages/IntroPage'
-import PublicRoute from './routes/PublicRoute'
-import ProtectedRoute from './routes/ProtectedRoute'
-import Dashboard from './pages/DashboardPage'
-import DashboardLayout from './layouts/DashboardLayout'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { OfflineSyncManager } from "./components/OfflineSyncManager";
+import { useAuth } from "./context/useAuth";
+
+/* PAGES */
+import Login from "./pages/LoginPage";
+import Register from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
+import IntroPage from "./pages/IntroPage";
+import Dashboard from "./pages/DashboardPage";
 import UsersPage from "./pages/UsersPage";
-import TeamsPage from "./pages/TeamsPage";
-import TeamPage from "./pages/TeamPage";
-import ProjectPage from "./pages/ProjectPage";
+import CalendarPage from "./pages/CalendarPage";
+import HowToUsePage from "./pages/HowToUsePage";
 
-const App = () => {
+/* ROUTES */
+import PublicRoute from "./routes/PublicRoute";
+import ProtectedRoute from "./routes/ProtectedRoute";
+
+/* LAYOUTS */
+import AppLayout from "./layouts/AppLayout";
+import DashboardLayout from "./layouts/DashboardLayout";
+import AuthLayout from "./layouts/AuthLayout";
+import { API_BASE_URL } from "./config/api";
+
+export default function App() {
+  /* =====================
+     BACKEND WARM-UP
+  ===================== */
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/`)
+      .catch(() => {});
+  }, []);
+
   return (
-    <>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<PublicRoute />}>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<IntroPage />} />
-            </Route>
-
-            <Route element={<AuthLayout />}>
-              <Route path='/login' element={<LoginPage />} />
-              <Route path='/register' element={<RegisterPage />} />
-            </Route>
+    <BrowserRouter>
+      <OfflineSyncManager />
+      <Routes>
+        {/* 🔓 PUBLIC ROUTES */}
+        <Route element={<PublicRoute />}>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<IntroPage />} />
           </Route>
 
-          <Route element={<ProtectedRoute />}>
-            <Route element={<AppLayout />}>
-              <Route element={<DashboardLayout />}>
-                <Route path='/dashboard' element={<Dashboard />} />
-
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/u/:username" element={<ProfilePage />} />
-
-                <Route path="/users" element={<UsersPage />} />
-
-                <Route path="/teams" element={<TeamsPage />} />
-                <Route path="/teams/:teamId" element={<TeamPage />} />
-                <Route path="/projects" element={<ProjectPage />} />
-              </Route>
-            </Route>  
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Route>
-        </Routes>
-      </BrowserRouter>
-    </>
-  )
+        </Route>
+
+        {/* 🔐 PROTECTED ROUTES */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AppLayout />}>
+            <Route element={<DashboardLayout />}>
+              {/* DASHBOARD */}
+              <Route path="/dashboard" element={<Dashboard />} />
+
+              {/* PROFILE */}
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/u/:username" element={<ProfilePage />} />
+
+              {/* USERS */}
+              <Route path="/users" element={<UsersPage />} />
+
+              {/* CALENDAR */}
+              <Route path="/calendar" element={<CalendarPage />} />
+
+              {/* INFO PAGES */}
+              <Route path="/how-to-use" element={<HowToUsePage />} />
+            </Route>
+          </Route>
+        </Route>
+
+        {/* Compatibility + fallback */}
+        <Route path="/home" element={<RouteFallback />} />
+        <Route path="*" element={<RouteFallback />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+function RouteFallback() {
+  const { user } = useAuth();
+  return <Navigate to={user ? "/dashboard" : "/"} replace />;
+}

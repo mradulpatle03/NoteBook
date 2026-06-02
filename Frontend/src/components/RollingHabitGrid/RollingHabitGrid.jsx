@@ -1,98 +1,94 @@
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import { toDateKey } from "../../utils/date";
-import { useWeeklyHabits } from "./useMonthlyHabits";
+import { addAppDays, startOfAppDay } from "../../utils/date";
+import { useDashboard } from "../../context/useDashboard";
 import RollingHabitGridLayout from "./RollingHabitGridLayout";
 
 const getRollingDays = (center = new Date()) => {
-  const base = new Date(center);
-  base.setUTCHours(0, 0, 0, 0);
+  const base = startOfAppDay(center);
 
   const days = [];
 
-  // 10 days behind
-  for (let i = 10; i > 0; i--) {
-    const d = new Date(base);
-    d.setUTCDate(base.getUTCDate() - i);
-    days.push(d);
+  for (let index = 5; index > 0; index -= 1) {
+    days.push(addAppDays(base, -index));
   }
 
-  // today
   days.push(new Date(base));
 
-  // 15 days ahead
-  for (let i = 1; i <= 15; i++) {
-    const d = new Date(base);
-    d.setUTCDate(base.getUTCDate() + i);
-    days.push(d);
+  for (let index = 1; index <= 10; index += 1) {
+    days.push(addAppDays(base, index));
   }
 
   return {
     days,
-    rangeKey: toDateKey(days[0]),
     todayKey: toDateKey(base),
   };
 };
 
 export default function RollingHabitGrid() {
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
+  const today = startOfAppDay(new Date());
 
-  const { days, rangeKey, todayKey } = getRollingDays(today);
-  const { habits, logs, loading } = useWeeklyHabits(rangeKey);
+  const { days, todayKey } = getRollingDays(today);
+  const { habits, logs, loading, toggleHabit } = useDashboard();
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center text-zinc-600 dark:text-zinc-500">
-        Loading habits…
+      <div className="w-full h-full animate-pulse overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4">
+          <div className="space-y-4">
+            <div className="h-6 w-48 bg-zinc-100 dark:bg-zinc-900 rounded-md" />
+            <div className="h-3 w-40 bg-zinc-50 dark:bg-zinc-900/40 rounded-md" />
+          </div>
+        </div>
+        <div className="p-6 space-y-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4 h-6">
+              <div className="w-24 h-4 bg-zinc-100 dark:bg-zinc-900 rounded-md shrink-0" />
+              <div className="flex-1 flex justify-between gap-2">
+                {Array.from({ length: 10 }).map((_, j) => (
+                  <div key={j} className="w-6 h-6 rounded-full bg-zinc-50 dark:bg-zinc-900/50 shrink-0" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <motion.div
-      className="
-        w-full h-full
-        rounded-xl
-        overflow-hidden
-        pt-4 pb-2
-        transition-colors
-
-        bg-white dark:bg-zinc-950
-        border border-zinc-200 dark:border-zinc-800
-      "
+    <Motion.div
+      className="w-full h-full pt-3 pb-2 transition-colors"
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      {/* ===== HEADER ===== */}
       <div
         className="
           sticky top-0 z-30
           flex items-center justify-between
-          px-6 py-3
-          backdrop-blur
-
-          bg-white/90 dark:bg-zinc-950/90
-          border-b border-zinc-200 dark:border-zinc-800
+          px-4 py-3 sm:px-6
+          backdrop-blur-sm
+          bg-white/50 dark:bg-zinc-950/50
         "
       >
         <div>
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-200">
             Habit Timeline
           </h2>
-          <p className="text-xs text-zinc-600 dark:text-zinc-500">
-            10 days back · Today · 15 days ahead
+          <p className="text-[11px] text-zinc-600 dark:text-zinc-500">
+            5 days back - Today - 10 days ahead
           </p>
         </div>
       </div>
 
-      {/* ===== GRID ===== */}
       <RollingHabitGridLayout
         days={days}
         habits={habits}
         logs={logs}
         todayKey={todayKey}
+        onToggle={toggleHabit}
       />
-    </motion.div>
+    </Motion.div>
   );
 }

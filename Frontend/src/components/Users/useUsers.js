@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../../api/axios";
+import { useAuth } from "../../context/useAuth";
 
 export function useUsers() {
+  const { user: currentUser, setUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -10,8 +12,8 @@ export function useUsers() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await api.get("/users");
-        setUsers(res.data);
+        const usersRes = await api.get("/users");
+        setUsers(usersRes.data);
       } catch (err) {
         console.error("Fetch users error:", err);
         setError("Failed to load users");
@@ -24,15 +26,42 @@ export function useUsers() {
   }, []);
 
   const filteredUsers = useMemo(() => {
-    const q = search.toLowerCase().trim();
-    if (!q) return users;
+    const query = search.toLowerCase().trim();
+    if (!query) return users;
 
     return users.filter(
-      (u) =>
-        u.name?.toLowerCase().includes(q) ||
-        u.username?.toLowerCase().includes(q)
+      (user) =>
+        user.name?.toLowerCase().includes(query) ||
+        user.username?.toLowerCase().includes(query)
     );
   }, [users, search]);
+
+  const toggleFollow = async (username) => {
+    try {
+      const res = await api.post(`/users/${username}/follow`);
+      const { isFollowing } = res.data;
+      
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.username === username
+            ? { ...user, isFollowing }
+            : user
+        )
+      );
+
+      // Update the current user's following count in AuthContext
+      if (currentUser) {
+        setUser((prev) => ({
+          ...prev,
+          followingCount: isFollowing 
+            ? (prev.followingCount || 0) + 1 
+            : Math.max(0, (prev.followingCount || 0) - 1),
+        }));
+      }
+    } catch (err) {
+      console.error("Toggle follow failed", err);
+    }
+  };
 
   return {
     users: filteredUsers,
@@ -40,5 +69,7 @@ export function useUsers() {
     setSearch,
     loading,
     error,
+    toggleFollow,
   };
 }
+

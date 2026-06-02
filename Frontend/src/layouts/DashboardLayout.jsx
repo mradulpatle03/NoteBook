@@ -1,24 +1,19 @@
 import { Outlet } from "react-router-dom";
+import { DashboardProvider } from "../context/DashboardContext";
 import Sidebar from "../components/Sidebar/Sidebar";
 
 export default function DashboardLayout() {
   return (
-    <div
-      className="
-        flex min-h-screen
-        bg-bg text-text
-        transition-colors
-      "
-    >
-      {/* DESKTOP SIDEBAR */}
-      <div className="hidden fix md:block">
+    <DashboardProvider>
+      <div className="relative flex h-full min-h-0 w-full overflow-hidden bg-transparent text-text transition-colors">
         <Sidebar />
-      </div>
 
-      {/* PAGE CONTENT */}
-      <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
-        <Outlet />
-      </main>
-    </div>
+        <main className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-l border-white/30 pb-24 md:ml-18 md:pb-0 dark:border-white/5">
+          <div className="flex h-full min-h-0 w-full flex-col">
+            <Outlet />
+          </div>
+        </main>
+      </div>
+    </DashboardProvider>
   );
 }

@@ -1,59 +1,36 @@
-export default function SidebarItem({ icon, label, onClick, active }) {
+export default function SidebarItem({ icon, label, onClick, active, compact = false }) {
   return (
     <button
       onClick={onClick}
       className={`
-        w-full h-11
-        flex items-center gap-3
-        px-2 rounded-md
-        text-sm
-        transition-all duration-150
-
+        group relative flex w-full items-center gap-3 rounded-[18px] px-3 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition-all duration-300
+        ${compact ? "justify-center px-0 py-2.5 mx-auto w-11" : "px-4"}
         ${
           active
             ? `
-              bg-[#BAFF39]/20
-              text-black dark:text-white
+              bg-[rgb(var(--primary))] text-white shadow-lg shadow-[rgba(var(--primary),0.22)]
             `
             : `
-              text-[#6E6E6E]
-              hover:text-black dark:hover:text-white
-              hover:bg-gray-100 dark:hover:bg-white/5
+              text-slate-400 hover:bg-white/6 hover:text-slate-100
             `
         }
       `}
     >
-      {/* ICON */}
       <span
         className={`
-          shrink-0 flex items-center justify-center w-8
-          transition-colors
-
-          ${
-            active
-              ? `
-                text-[#BAFF39]
-              `
-              : `
-                text-[#6E6E6E]
-                group-hover:text-black dark:group-hover:text-white
-              `
-          }
+          relative z-10 flex shrink-0 items-center justify-center transition-transform duration-300 group-hover:scale-110
+          ${compact ? "w-5" : "w-5"}
+          ${active ? "text-white" : "text-slate-500 group-hover:text-[rgb(var(--primary))]"}
         `}
       >
         {icon}
       </span>
 
-      {/* LABEL */}
-      <span
-        className="
-          whitespace-nowrap overflow-hidden
-          max-w-0 group-hover:max-w-xs
-          transition-all duration-200
-        "
-      >
-        {label}
-      </span>
+      {!compact && <span className="truncate">{label}</span>}
+      
+      {active && !compact && (
+        <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white shadow-sm" />
+      )}
     </button>
   );
 }

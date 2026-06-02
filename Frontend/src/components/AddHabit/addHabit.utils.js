@@ -1,10 +1,21 @@
+export const PLATFORM_OPTIONS = [
+  { value: "github", label: "GitHub" },
+  { value: "leetcode", label: "LeetCode" },
+  { value: "codeforces", label: "Codeforces" },
+  { value: "codechef", label: "CodeChef" },
+  { value: "gfg", label: "GFG" },
+];
+
 export function validateHabit({
   title,
+  type,
   frequency,
   days,
   intervalDays,
   durationType,
   durationDays,
+  verificationRule,
+  platformSource,
 }) {
   if (!title.trim()) {
     return "Title required";
@@ -20,6 +31,14 @@ export function validateHabit({
 
   if (durationType === "custom" && durationDays < 1) {
     return "Duration must be at least 1 day";
+  }
+
+  if (verificationRule === "platform" && !platformSource) {
+    return "Choose a platform to auto-track";
+  }
+
+  if (verificationRule === "platform" && type !== "hobby") {
+    return "Auto-tracked items must be hobbies";
   }
 
   return null;

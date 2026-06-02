@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import ActivityLog from "../models/activityLog.model.js";
 
 
 export const getActivityHeatmap = async (req, res) => {

@@ -1,17 +1,66 @@
 import { useEffect, useRef } from "react";
+import { motion as Motion } from "framer-motion";
 import { DAYS } from "../../constants/days";
+
+const accentClassMap = {
+  indigo: {
+    selected: "text-indigo-600 dark:text-indigo-400",
+    badge: "bg-indigo-100/50 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400",
+    ring: "ring-indigo-500/60",
+    indicator: "bg-indigo-500",
+  },
+  emerald: {
+    selected: "text-emerald-600 dark:text-emerald-400",
+    badge: "bg-emerald-100/50 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400",
+    ring: "ring-emerald-500/60",
+    indicator: "bg-emerald-500",
+  },
+  amber: {
+    selected: "text-amber-600 dark:text-amber-400",
+    badge: "bg-amber-100/50 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400",
+    ring: "ring-amber-400/70",
+    indicator: "bg-amber-500",
+  },
+  rose: {
+    selected: "text-rose-600 dark:text-rose-400",
+    badge: "bg-rose-100/50 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400",
+    ring: "ring-rose-400/70",
+    indicator: "bg-rose-500",
+  },
+};
+
+const surfaceClassMap = {
+  solid: "bg-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors",
+  glass:
+    "bg-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors",
+  minimal:
+    "bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-900",
+};
+
+const densityClassMap = {
+  compact: "min-w-[58px] px-2 py-2",
+  comfy: "min-w-[70px] px-3 py-3",
+  wide: "min-w-[84px] px-4 py-3.5",
+};
 
 export default function WeekCalendar({
   weekDates = [],
   selectedIndex = 0,
   onSelect = () => {},
   habitCounts = [],
+  design = {},
 }) {
   const containerRef = useRef(null);
   const todayRef = useRef(null);
   const itemRefs = useRef([]);
 
-  /* AUTO SCROLL TO TODAY */
+  const accent = accentClassMap[design.accent] || accentClassMap.indigo;
+  const surface =
+    surfaceClassMap[design.surface] || surfaceClassMap.solid;
+  const density =
+    densityClassMap[design.density] || densityClassMap.comfy;
+  const showCounts = design.showCounts !== false;
+
   useEffect(() => {
     if (todayRef.current && containerRef.current) {
       todayRef.current.scrollIntoView({
@@ -25,18 +74,18 @@ export default function WeekCalendar({
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const handleDateSearch = (e) => {
-    const value = e.target.value;
+  const handleDateSearch = (event) => {
+    const value = event.target.value;
     if (!value) return;
 
     const target = new Date(value);
     target.setHours(0, 0, 0, 0);
 
     const index = weekDates.findIndex(
-      (d) =>
-        d.getFullYear() === target.getFullYear() &&
-        d.getMonth() === target.getMonth() &&
-        d.getDate() === target.getDate()
+      (date) =>
+        date.getFullYear() === target.getFullYear() &&
+        date.getMonth() === target.getMonth() &&
+        date.getDate() === target.getDate()
     );
 
     if (index !== -1) {
@@ -50,80 +99,56 @@ export default function WeekCalendar({
   };
 
   return (
-    <div className="space-y-3 bg-">
-      {/* ===== DAYS STRIP ===== */}
+    <div className="space-y-3">
       <div
         ref={containerRef}
-        className="
-          flex gap-2 overflow-x-auto pb-2
-          scroll-smooth
-        "
+        className="flex gap-2 overflow-x-auto no-scrollbar pb-2 scroll-smooth"
       >
-        {weekDates.map((date, i) => {
-          const isSelected = i === selectedIndex;
+        {weekDates.map((date, index) => {
+          const isSelected = index === selectedIndex;
           const isToday =
             date.getFullYear() === today.getFullYear() &&
             date.getMonth() === today.getMonth() &&
             date.getDate() === today.getDate();
 
-          const count = habitCounts[i] ?? 0;
+          const count = habitCounts[index] ?? 0;
 
           return (
             <button
-              key={i}
-              ref={(el) => {
-                itemRefs.current[i] = el;
-                if (isToday) todayRef.current = el;
-              }}
-              onClick={() => onSelect(i)}
-              className={`
-                relative min-w-[68px] px-3 py-2 rounded-xl
-                backdrop-blur-xl
-                border transition-all duration-150
-
-                ${
-                  isSelected
-                    ? `
-                      bg-[#BAFF39]/20
-                      border-[#BAFF39]/40
-                      text-black dark:text-white
-                    `
-                    : `
-                      bg-white/80 dark:bg-[#0A0A0A]/80
-                      border-gray-200 dark:border-gray-800
-                      text-[#6E6E6E]
-                      hover:text-black dark:hover:text-white
-                      hover:bg-white dark:hover:bg-[#0A0A0A]
-                    `
+              key={index}
+              ref={(element) => {
+                itemRefs.current[index] = element;
+                if (isToday) {
+                  todayRef.current = element;
                 }
+              }}
+              onClick={() => onSelect(index)}
+              className={`
+                relative rounded-2xl text-left transition
+                ${density}
+                ${isSelected ? accent.selected : surface}
+                ${isToday && !isSelected ? `ring-1 ${accent.ring}` : ""}
               `}
             >
-              {/* TODAY INDICATOR */}
-              {isToday && !isSelected && (
-                <span className="absolute top-1 left-1 w-1.5 h-1.5 bg-[#BAFF39] rounded-full" />
-              )}
-
-              <div className="text-[10px] uppercase tracking-wide">
-                {DAYS[date.getDay()]}
+              <div className={`text-[10px] font-bold uppercase tracking-widest ${isSelected ? "opacity-100" : "text-zinc-500 dark:text-zinc-400"}`}>
+                {date.toLocaleDateString("en-US", { weekday: "short" })}
               </div>
-
-              <div className="text-lg font-semibold">
+              <div className={`mt-1.5 text-xl ${isSelected ? "font-extrabold text-zinc-900 dark:text-white" : "font-semibold text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200"}`}>
                 {date.getDate()}
               </div>
 
-              {/* COUNT */}
-              {count > 0 && (
+              {isSelected && (
+                 <Motion.div 
+                   layoutId="activeDayDash"
+                   className={`absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full ${accent.indicator}`} 
+                 />
+              )}
+
+              {showCounts && count > 0 && (
                 <span
                   className={`
-                    absolute top-1 right-1 text-[10px]
-                    px-1.5 py-0.5 rounded-full
-                    transition
-
-                    ${
-                      isSelected
-                        ? "bg-black text-white"
-                        : "bg-[#BAFF39]/20 text-[#BAFF39]"
-                    }
+                    absolute right-1 top-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold
+                    ${isSelected ? accent.badge : "bg-zinc-100 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400"}
                   `}
                 >
                   {count}
@@ -134,22 +159,17 @@ export default function WeekCalendar({
         })}
       </div>
 
-      {/* ===== DATE SEARCH ===== */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-[#6E6E6E]">
+        <span className="text-xs text-zinc-600 dark:text-zinc-400">
           Jump to date:
         </span>
-
         <input
           type="date"
           onChange={handleDateSearch}
           className="
-            bg-white dark:bg-[#0A0A0A]
-            border border-gray-200 dark:border-gray-800
-            text-black dark:text-white
-            rounded-md px-2 py-1 text-xs
-            focus:outline-none focus:ring-2 focus:ring-[#BAFF39]/40
-            transition
+            rounded-lg bg-zinc-100 px-2 py-1 text-xs
+            text-zinc-700 focus:outline-none focus:ring-1 focus:ring-[rgba(var(--primary),0.3)]
+            dark:bg-zinc-900 dark:text-zinc-300
           "
         />
       </div>

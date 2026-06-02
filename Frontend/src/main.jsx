@@ -1,39 +1,53 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
-import { store } from "./store";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "./store";
 import App from "./App";
 import "./index.css";
-
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
-import { GoogleOAuthProvider } from "@react-oauth/google";
+import { SyncProvider } from "./context/SyncContext";
+import { GoogleProviderWrapper } from "./providers/GoogleProviderWrapper";
 
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
-function GoogleProviderWrapper({ children }) {
-  if (!googleClientId) {
-    console.warn("Google OAuth disabled: missing Google Client ID");
-    return children;
+function cleanupLegacyPwaCaches() {
+  if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
+    return;
   }
 
-  return (
-    <GoogleOAuthProvider clientId={googleClientId}>
-      {children}
-    </GoogleOAuthProvider>
-  );
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => {
+        void registration.unregister();
+      });
+    });
+
+    if ("caches" in window) {
+      caches.keys().then((cacheKeys) => {
+        cacheKeys.forEach((cacheKey) => {
+          void caches.delete(cacheKey);
+        });
+      });
+    }
+  });
 }
+
+cleanupLegacyPwaCaches();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
-      <GoogleProviderWrapper>
-        <ThemeProvider>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </ThemeProvider>
-      </GoogleProviderWrapper>
+      <PersistGate loading={null} persistor={persistor}>
+        <GoogleProviderWrapper>
+          <ThemeProvider>
+            <AuthProvider>
+              <SyncProvider>
+                <App />
+              </SyncProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </GoogleProviderWrapper>
+      </PersistGate>
     </Provider>
   </React.StrictMode>
 );

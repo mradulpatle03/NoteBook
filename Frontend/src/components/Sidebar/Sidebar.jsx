@@ -1,8 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Plus, Home, Users, Workflow, LogOut, Search } from "lucide-react";
-
-import { useAuth } from "../../context/AuthContext";
+import {
+  Home,
+  CalendarDays,
+  LogOut,
+  Plus,
+  Search,
+} from "lucide-react";
+import { useAuth } from "../../context/useAuth";
 import AddHabitModal from "../AddHabit";
 import SidebarItem from "./SidebarItem";
 
@@ -15,116 +20,150 @@ export default function Sidebar() {
   const isActive = (path) =>
     location.pathname === path || location.pathname.startsWith(path + "/");
 
-  // 🔥 CORRECT LOGOUT HANDLER
   const handleLogout = () => {
-    logout(); // clear auth state
-    navigate("/", { replace: true }); // redirect to root safely
+    logout();
+    navigate("/", { replace: true });
   };
+
+  const initials = (user?.name || user?.username || "?")[0].toUpperCase();
+
+  const navItems = [
+    { icon: <Home size={18} />, label: "Home", path: "/dashboard" },
+    { icon: <CalendarDays size={18} />, label: "Calendar", path: "/calendar" },
+    { icon: <Search size={18} />, label: "Search", path: "/users" },
+  ];
 
   return (
     <>
-      <aside
-        className="
-    group
-    w-16 hover:w-56
-    transition-[width] duration-200 ease-in-out
-    flex flex-col
-    bg-white dark:bg-[#0A0A0A]
-    border-r border-gray-200 dark:border-gray-800
-  "
-      >
+      {/* DESKTOP SIDEBAR - FLUSH ELITE RAIL */}
+      <aside className="
+        hidden md:fixed md:top-0 md:left-0 md:flex md:flex-col
+        md:h-screen w-18 shrink-0 z-20
+        bg-slate-950/96 dark:bg-black
+        px-3 py-5
+        transition-colors
+      ">
+
+
+
         {/* NAV */}
-        <nav className="px-2 py-4 space-y-1">
-          <SidebarItem
-            icon={<Home size={20} />}
-            label="Home"
-            active={isActive("/dashboard")}
-            onClick={() => navigate("/dashboard")}
-          />
-
-          <SidebarItem
-            icon={<Users size={20} />}
-            label="Teams"
-            active={isActive("/teams")}
-            onClick={() => navigate("/teams")}
-          />
-
-          <SidebarItem
-            icon={<Workflow size={20} />}
-            label="Projects"
-            active={isActive("/projects")}
-            onClick={() => navigate("/projects")}
-          />
-
-          <SidebarItem
-            icon={<Search size={20} />}
-            label="Search"
-            active={isActive("/users")}
-            onClick={() => navigate("/users")}
-          />
-
-          {/* PROFILE */}
-          <SidebarItem
-            icon={
-              user?.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt="Profile"
-                  className="w-6 h-6 rounded-full object-cover border border-gray-300 dark:border-gray-700"
-                />
-              ) : (
-                <div className="w-6 h-6 rounded-full flex items-center justify-center bg-[#BAFF39] text-black text-[11px] font-semibold">
-                  {(user?.name || user?.username || "?")[0].toUpperCase()}
-                </div>
-              )
-            }
-            label="Profile"
-            active={isActive(`/u/${user?.username}`)}
-            onClick={() => user?.username && navigate(`/u/${user.username}`)}
-          />
+        <nav className="flex flex-1 flex-col gap-2.5">
+          {navItems.map((item) => (
+            <SidebarItem
+              key={item.path}
+              compact
+              icon={item.icon}
+              label={item.label}
+              active={isActive(item.path)}
+              onClick={() => navigate(item.path)}
+            />
+          ))}
         </nav>
 
-        {/* FOOTER */}
-        <div className="mt-auto p-2 space-y-2">
-          {/* ADD HABIT */}
+        {/* BOTTOM ACTIONS */}
+        <div className="flex flex-col gap-3 pt-5">
+          {/* Add Habit */}
           <button
             onClick={() => setOpen(true)}
-            className="
-        w-full h-11 flex items-center gap-3
-        rounded-md
-        bg-[#BAFF39] hover:bg-[#a8f52e]
-        text-black
-        transition-colors
-      "
+            className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-white text-zinc-900 shadow-lg shadow-black/15 transition hover:opacity-90 active:scale-95 mx-auto dark:bg-zinc-100 dark:text-zinc-900"
+            aria-label="Add habit"
           >
-            <Plus className="w-5 h-5 ml-3 shrink-0" />
-            <span className="max-w-0 group-hover:max-w-xs overflow-hidden transition-all text-sm font-medium">
-              Add Habit
-            </span>
+            <Plus size={18} strokeWidth={3} />
           </button>
 
-          {/* LOGOUT */}
+          {/* Profile Avatar */}
+          <button
+            onClick={() => user?.username && navigate(`/u/${user.username}`)}
+            className={`
+              flex h-11 w-11 items-center justify-center overflow-hidden rounded-[18px] transition mx-auto
+              ${
+                isActive(`/u/${user?.username}`)
+                  ? "bg-[rgba(var(--primary),0.14)] text-[rgb(var(--primary))] ring-2 ring-[rgba(var(--primary),0.18)]"
+                  : "bg-slate-900 text-slate-200 hover:bg-slate-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+              }
+            `}
+            aria-label="Open profile"
+          >
+            {user?.avatar ? (
+              <img src={user.avatar} alt="Profile" className="h-full w-full object-cover" />
+            ) : (
+                <div className="flex h-full w-full items-center justify-center text-sm font-semibold">
+                {initials}
+              </div>
+            )}
+          </button>
+
+          {/* Logout */}
           <button
             onClick={handleLogout}
-            className="
-        w-full h-11 flex items-center gap-3
-        rounded-md
-        text-[#6E6E6E] hover:text-black dark:hover:text-white
-        hover:bg-gray-100 dark:hover:bg-white/5
-        transition-all duration-200
-        opacity-0 pointer-events-none
-        group-hover:opacity-100 group-hover:pointer-events-auto
-      "
+            className="flex h-11 w-11 items-center justify-center rounded-[18px] text-zinc-400 transition hover:bg-red-50 hover:text-red-500 dark:text-zinc-500 dark:hover:bg-red-500/10 dark:hover:text-red-400 mx-auto"
+            aria-label="Logout"
           >
-            <LogOut className="w-5 h-5 ml-3 shrink-0" />
-            <span className="max-w-0 group-hover:max-w-xs overflow-hidden transition-all text-sm font-medium">
-              Logout
-            </span>
+            <LogOut size={16} />
           </button>
         </div>
       </aside>
 
+      {/* MOBILE BOTTOM NAV */}
+      <nav className="
+        fixed inset-x-0 bottom-2 z-40 md:hidden
+        bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl
+        border-t border-zinc-100 dark:border-zinc-900/50
+        px-4 py-3
+      ">
+        <div className="flex items-center justify-around gap-1">
+          <MobileNavButton icon={<Search size={20} />} active={isActive("/users")} onClick={() => navigate("/users")} />
+          <MobileNavButton icon={<Home size={20} />} active={isActive("/dashboard")} onClick={() => navigate("/dashboard")} />
+          
+          <button
+            onClick={() => setOpen(true)}
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgb(var(--primary))] text-white shadow-xl shadow-[rgba(var(--primary),0.3)] transition hover:opacity-90 active:scale-95 -translate-y-4"
+          >
+            <Plus size={20} strokeWidth={3} />
+          </button>
+
+          <MobileNavButton icon={<CalendarDays size={20} />} active={isActive("/calendar")} onClick={() => navigate("/calendar")} />
+          
+          <button
+            onClick={() => user?.username && navigate(`/u/${user.username}`)}
+            className={`
+              flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl transition
+              ${isActive(`/u/${user?.username}`)
+                ? "bg-[rgba(var(--primary),0.1)] text-[rgb(var(--primary))]"
+                : "text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+              }
+            `}
+          >
+            {user?.avatar ? (
+              <img src={user.avatar} alt="P" className="h-6 w-6 rounded-full object-cover" />
+            ) : (
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[rgb(var(--primary))] text-[10px] font-bold text-white uppercase">
+                {initials}
+              </div>
+            )}
+          </button>
+        </div>
+      </nav>
+
       {open && <AddHabitModal onClose={() => setOpen(false)} />}
     </>
+  );
+}
+
+
+function MobileNavButton({ icon, onClick, active }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        flex h-12 w-12 items-center justify-center rounded-2xl transition
+        ${active
+          ? "bg-[rgba(var(--primary),0.1)] text-[rgb(var(--primary))]"
+          : "text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+        }
+      `}
+    >
+      {icon}
+    </button>
   );
 }

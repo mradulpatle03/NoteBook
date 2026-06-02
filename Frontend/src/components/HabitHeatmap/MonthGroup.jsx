@@ -6,6 +6,7 @@ export const MonthGroup = ({
   getDailyIntensity,
   toDateKey,
   getIntensityColor,
+  accentColor,
 }) => {
   return (
     <div className="flex flex-col gap-2">
@@ -18,11 +19,11 @@ export const MonthGroup = ({
 
       <div
         className="grid grid-flow-col grid-rows-7 gap-1"
-        style={{ gridAutoColumns: "13px" }}
+        style={{ gridAutoColumns: "16px" }}
       >
         {/* Spacer cells */}
         {[...Array(month.startOffset)].map((_, i) => (
-          <div key={`spacer-${i}`} className="w-[13px] h-[13px]" />
+          <div key={`spacer-${i}`} className="w-4 h-4" />
         ))}
 
         {month.days.map((day) => {
@@ -35,7 +36,8 @@ export const MonthGroup = ({
               dateKey={dateKey}
               intensity={intensity}
               isToday={dateKey === todayKey}
-              colorClass={getIntensityColor(intensity)}
+              colorClass={getIntensityColor(intensity, accentColor)}
+              accentColor={accentColor} 
             />
           );
         })}

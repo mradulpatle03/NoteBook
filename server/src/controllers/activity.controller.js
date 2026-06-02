@@ -1,10 +1,15 @@
 import ActivityLog from "../models/activityLog.model.js";
 import Habit from "../models/habit.model.js";
+import User from "../models/user.model.js";
 import {
+  getAppDateKey,
   getUTCStartOfDay,
   getUTCEndOfDay,
-  getUTCDayKey,
 } from "../utils/date.js";
+import {
+  isHabitScheduledOnDate,
+  syncAutoVerifiedHabitsForDate,
+} from "../services/platformSync.service.js";
 
 export const getStatusByDate = async (req, res) => {
   try {
@@ -18,12 +23,13 @@ export const getStatusByDate = async (req, res) => {
     const target = new Date(date);
     const start = getUTCStartOfDay(target);
     const end = getUTCEndOfDay(target);
-    const dayKey = getUTCDayKey(target);
 
-    const habits = await Habit.find({
-      user: userId,
-      $or: [{ frequency: "daily" }, { frequency: "weekly", days: dayKey }],
-    });
+    await syncAutoVerifiedHabitsForDate(userId, target);
+
+    const allHabits = await Habit.find({ user: userId });
+    const habits = allHabits.filter((habit) =>
+      isHabitScheduledOnDate(habit, target),
+    );
 
     const logs = await ActivityLog.find({
       user: userId,
@@ -31,12 +37,64 @@ export const getStatusByDate = async (req, res) => {
     });
 
     const response = habits.map((habit) => {
-      const log = logs.find((l) => l.habit.toString() === habit._id.toString());
+      const log = logs.find(
+        (entry) => entry.habit.toString() === habit._id.toString(),
+      );
 
       return {
         habitId: habit._id,
         title: habit.title,
         done: log?.status === "done",
+      };
+    });
+
+    res.json(response);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const getPublicStatusByUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ message: "Date required" });
+    }
+
+    const user = await User.findOne({ username }).lean();
+
+    if (!user || !user.profilePublic) {
+      return res.status(404).json({ message: "Public profile not found" });
+    }
+
+    const target = new Date(date);
+    const start = getUTCStartOfDay(target);
+    const end = getUTCEndOfDay(target);
+
+    await syncAutoVerifiedHabitsForDate(user._id, target);
+
+    const allHabits = await Habit.find({ user: user._id });
+    const habits = allHabits.filter((habit) =>
+      isHabitScheduledOnDate(habit, target),
+    );
+
+    const logs = await ActivityLog.find({
+      user: user._id,
+      date: { $gte: start, $lt: end },
+    });
+
+    const response = habits.map((habit) => {
+      const log = logs.find(
+        (entry) => entry.habit.toString() === habit._id.toString(),
+      );
+
+      return {
+        habitId: habit._id,
+        title: habit.title,
+        done: log?.status === "done",
+        type: habit.type,
       };
     });
 
@@ -72,7 +130,7 @@ export const toggleHabitByDate = async (req, res) => {
     await ActivityLog.create({
       user: userId,
       habit: habitId,
-      habitType: habit.type, 
+      habitType: habit.type,
       date: target,
       status: "done",
       confidence: 30,
@@ -100,8 +158,10 @@ export const getActivityRange = async (req, res) => {
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
 
-    const habits = await Habit.find({ user: userId }).lean();
+    // Syncing is now handled via cooldown or dedicated sync endpoint to keep fetches instant
+    // await syncAutoVerifiedHabitsForDate(userId, today);
 
+    const habits = await Habit.find({ user: userId }).lean();
     const logs = await ActivityLog.find({
       user: userId,
       date: { $gte: start, $lte: today },
@@ -109,7 +169,7 @@ export const getActivityRange = async (req, res) => {
 
     const logMap = {};
     for (const log of logs) {
-      const key = `${log.habit}_${log.date.toISOString().slice(0, 10)}`;
+      const key = `${log.habit}_${getAppDateKey(log.date)}`;
       logMap[key] = {
         done: log.status === "done",
         confidence: log.confidence ?? 0,
@@ -135,8 +195,7 @@ export const completeHabitToday = async (req, res) => {
       return res.status(404).json({ message: "Habit not found" });
     }
 
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
+    const today = getUTCStartOfDay(new Date());
 
     const exists = await ActivityLog.findOne({
       user: userId,
@@ -153,6 +212,7 @@ export const completeHabitToday = async (req, res) => {
     const log = await ActivityLog.create({
       user: userId,
       habit: habitId,
+      habitType: habit.type,
       date: today,
       status: "done",
       confidence: 30,
@@ -162,6 +222,21 @@ export const completeHabitToday = async (req, res) => {
       message: "Habit completed",
       log,
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const syncActivity = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    // This sync follows the 5-minute cooldown implemented in the service
+    await syncAutoVerifiedHabitsForDate(userId, today);
+
+    res.json({ message: "Sync complete" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -16,12 +16,14 @@ const activityLogSchema = new mongoose.Schema(
       index: true,
     },
 
+    // VERY IMPORTANT (for heatmap coloring)
     habitType: {
       type: String,
       enum: ["habit", "hobby"],
       required: true,
     },
 
+    // MUST always be UTC start-of-day
     date: {
       type: Date,
       required: true,

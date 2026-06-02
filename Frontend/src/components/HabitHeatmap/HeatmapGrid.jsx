@@ -1,8 +1,11 @@
 import { useMemo } from "react";
 import { toDateKey, getIntensityColor } from "./heatmap.utils";
 import { MonthGroup } from "./MonthGroup";
+import { useAuth } from "../../context/useAuth";
 
 export default function HeatmapGrid({ days, today, getDailyIntensity }) {
+  const { user } = useAuth();
+  const accentColor = user?.accentColor || "indigo";
   const todayKey = toDateKey(today);
 
   // Group days into months with start-of-week offsets
@@ -33,7 +36,7 @@ export default function HeatmapGrid({ days, today, getDailyIntensity }) {
       <div className="flex gap-2.75 min-w-max items-end px-2">
         {/* WEEKDAY LEGEND */}
         <div className="
-          grid grid-rows-7 gap-1 pb-[2px] pr-2
+          grid grid-rows-7 gap-1 pb-0.5 pr-2
           text-[9px] uppercase
           text-zinc-500 dark:text-zinc-400
         ">
@@ -54,6 +57,7 @@ export default function HeatmapGrid({ days, today, getDailyIntensity }) {
             getDailyIntensity={getDailyIntensity}
             toDateKey={toDateKey}
             getIntensityColor={getIntensityColor}
+            accentColor={accentColor}
           />
         ))}
       </div>

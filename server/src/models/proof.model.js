@@ -13,10 +13,10 @@ const proofSchema = new mongoose.Schema(
       required: true,
     },
 
-    value: String,
+    value: String, // URL / commit hash / note
 
     weight: {
-      type: Number,
+      type: Number, // how strong this proof is
       default: 10,
     },
   },

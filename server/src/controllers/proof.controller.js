@@ -6,6 +6,7 @@ export const addProof = async (req, res) => {
     const { logId } = req.params;
     const { type, value } = req.body;
 
+    // basic validation
     if (!type || !value) {
       return res.status(400).json({ message: "Proof type and value required" });
     }
@@ -15,13 +16,15 @@ export const addProof = async (req, res) => {
       return res.status(404).json({ message: "Activity log not found" });
     }
 
+    // create proof
     await Proof.create({
       activityLog: logId,
       type,
       value,
-      weight: 30,
+      weight: 30, // simple rule
     });
 
+    // increase confidence (cap at 100)
     log.confidence = Math.min(log.confidence + 30, 100);
     await log.save();
 

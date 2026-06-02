@@ -24,7 +24,7 @@ const teamSchema = new mongoose.Schema(
     ],
 
     meetingLink: {
-      type: String, 
+      type: String, // Google Meet / Zoom / Jitsi
     },
 
     isPrivate: {

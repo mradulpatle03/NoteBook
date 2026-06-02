@@ -1,12 +1,13 @@
 import UserCard from "../UserCard";
 
-export default function UsersGrid({ users }) {
+export default function UsersGrid({ users, onToggleFollow }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="flex flex-col gap-4 pb-20">
       {users.map((user) => (
         <UserCard
           key={user._id || user.username}
           user={user}
+          onToggleFollow={onToggleFollow}
         />
       ))}
     </div>

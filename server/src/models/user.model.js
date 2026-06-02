@@ -27,19 +27,53 @@ const userSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: false,
+      required: false, // GOOGLE USERS OK
       select: false,
     },
 
     provider: {
-      type: String,
-      enum: ["local", "google"],
-      default: "local",
-    },
+  type: String,
+  enum: ["local", "google"],
+  default: "local",
+},
+
 
     avatar: {
       type: String,
       default: "",
+    },
+
+    externalProfiles: {
+      github: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      leetcode: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      codeforces: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      codechef: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      gfg: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      codolio: {
+        type: String,
+        trim: true,
+        default: "",
+      },
     },
 
     profilePublic: {
@@ -57,6 +91,13 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    lastPlatformSync: { type: Date, default: null },
+    bio: { type: String, maxLength: 160, default: "" },
+    tagline: { type: String, maxLength: 50, default: "" },
+    location: { type: String, maxLength: 32, default: "" },
+    accentColor: { type: String, default: "indigo" }, // Choices: indigo, pink, emerald, cyan, orange, violet
   },
   {
     timestamps: true,
@@ -66,6 +107,14 @@ const userSchema = new mongoose.Schema(
         delete ret._id;
         delete ret.__v;
         delete ret.password;
+        ret.externalProfiles = ret.externalProfiles || {
+          github: "",
+          leetcode: "",
+          codeforces: "",
+          codechef: "",
+          gfg: "",
+          codolio: "",
+        };
       },
     },
   }

@@ -1,7 +1,7 @@
+import crypto from "crypto";
 import Team from "../models/team.model.js";
 import TeamInvite from "../models/teamInvite.model.js";
 import User from "../models/user.model.js";
-
 
 export const inviteUser = async (req, res) => {
   try {

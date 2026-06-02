@@ -1,5 +1,5 @@
 import { Trash2, Check } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 import StreakBadge from "./StreakBadge";
 
 export default function HabitItem({
@@ -24,27 +24,25 @@ export default function HabitItem({
   const canToggle = !disabled && !habit.done;
 
   return (
-    <motion.div
+    <Motion.div
       layout
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.01 }}
       transition={{ type: "spring", stiffness: 300, damping: 24 }}
-      className="
+      className={`
         group
         flex items-center justify-between
-        rounded-xl
-        px-4 py-3
-        backdrop-blur-xl
-        bg-white/80 dark:bg-[#0A0A0A]/80
-        border border-gray-200 dark:border-gray-800
-        transition-all
-        hover:bg-white dark:hover:bg-[#0A0A0A]
-      "
+        px-3 py-2.5
+        rounded-2xl
+        border border-transparent
+        hover:border-[rgba(var(--primary),0.2)]
+        hover:bg-[rgba(var(--primary),0.05)]
+        transition-all duration-300
+      `}
     >
-      {/* LEFT */}
+      {/* LEFT: STATUS + TITLE */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        {/* STATUS */}
+        {/* STATUS TOGGLE */}
         <button
           onClick={() => canToggle && onComplete(habit._id)}
           disabled={!canToggle}
@@ -52,31 +50,32 @@ export default function HabitItem({
             habit.done ? "Habit completed" : "Mark habit as completed"
           }
           className={`
-            w-5 h-5 rounded-md border flex items-center justify-center
-            transition-all
-            focus:outline-none focus:ring-2 focus:ring-[#BAFF39]/40
-
+            w-5 h-5 rounded-md border
+            flex items-center justify-center
+            transition
+            focus:outline-none focus:ring-2 focus:ring-[rgba(var(--primary),0.4)]
             ${
               habit.done
-                ? "bg-[#BAFF39] border-[#BAFF39]"
-                : "border-gray-300 dark:border-gray-700 group-hover:border-[#BAFF39]"
+                ? "bg-[rgb(var(--primary))] border-[rgba(var(--primary),0.8)]"
+                : "border-zinc-400 dark:border-zinc-600 group-hover:border-[rgb(var(--primary))]"
             }
-
             ${!canToggle ? "opacity-40 cursor-not-allowed" : ""}
           `}
         >
-          {habit.done && <Check size={12} className="text-black" />}
+          {habit.done && (
+            <Check size={12} className="text-white" />
+          )}
         </button>
 
         {/* TITLE */}
         <span
           className={`
-            text-sm truncate transition-colors
-
+            text-sm truncate
+            transition-colors
             ${
               habit.done
-                ? "line-through text-[#6E6E6E]"
-                : "text-black dark:text-white"
+                ? "line-through text-zinc-500"
+                : "text-zinc-800 dark:text-zinc-100 group-hover:text-[rgb(var(--primary))]"
             }
           `}
           title={habit.title}
@@ -85,8 +84,8 @@ export default function HabitItem({
         </span>
       </div>
 
-      {/* RIGHT */}
-      <div className="flex items-center gap-3 ml-3">
+      {/* RIGHT: STREAK + DELETE */}
+      <div className="flex items-center gap-2 ml-3">
         <StreakBadge habitId={habit._id} />
 
         {onDelete && (
@@ -95,16 +94,16 @@ export default function HabitItem({
             aria-label="Delete habit"
             className="
               opacity-0 group-hover:opacity-100
-              text-[#6E6E6E]
-              hover:text-red-500
+              text-zinc-500 hover:text-red-500
               transition
+              focus:opacity-100
             "
             title="Delete habit"
           >
-            <Trash2 size={16} />
+            <Trash2 size={15} />
           </button>
         )}
       </div>
-    </motion.div>
+    </Motion.div>
   );
 }

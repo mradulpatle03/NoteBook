@@ -1,15 +1,17 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import { getNDays, toUTCDateKey } from "./habitByDay.utils";
+import { startOfAppDay } from "../../utils/date";
+import { useSync } from "../../context/useSync";
 
 export function useHabitByDay() {
+  const { triggerSync } = useSync();
   const weekDates = getNDays(30);
 
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
+  const today = startOfAppDay(new Date());
 
   const todayIndex = weekDates.findIndex(
-    (d) => toUTCDateKey(d) === toUTCDateKey(today)
+    (date) => toUTCDateKey(date) === toUTCDateKey(today)
   );
 
   const [selectedIndex, setSelectedIndex] = useState(
@@ -17,47 +19,58 @@ export function useHabitByDay() {
   );
   const [habits, setHabits] = useState([]);
   const [loading, setLoading] = useState(true);
+  // localTick is for manual self-refreshes (e.g. after delete), NOT syncVersion
+  // syncVersion would cause an infinite loop since we call triggerSync here
+  const [localTick, setLocalTick] = useState(0);
 
   const selectedDate = weekDates[selectedIndex];
   const selectedKey = toUTCDateKey(selectedDate);
   const isToday = selectedKey === toUTCDateKey(today);
 
-  const fetchHabits = useCallback(() => {
-    setLoading(true);
-
+  useEffect(() => {
+    let isCancelled = false;
     const endpoint = isToday
       ? "/stats/today"
       : `/activity/status?date=${selectedKey}`;
 
-    api
-      .get(endpoint)
-      .then((res) => {
-        setHabits(
-          res.data.map((h) => ({
-            _id: h.habitId,
-            title: h.title,
-            done: h.done,
-          }))
-        );
-      })
-      .catch(() => setHabits([]))
-      .finally(() => setLoading(false));
-  }, [isToday, selectedKey]);
+    const loadHabits = async () => {
+      try {
+        const res = await api.get(endpoint);
+        if (!isCancelled) {
+          setHabits(
+            res.data.map((habit) => ({
+              _id: habit.habitId,
+              title: habit.title,
+              done: habit.done,
+            }))
+          );
+        }
+      } catch {
+        if (!isCancelled) {
+          setHabits([]);
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
+    };
 
-  useEffect(fetchHabits, [fetchHabits]);
+    void loadHabits();
 
-  useEffect(() => {
-    window.addEventListener("habits-updated", fetchHabits);
-    return () =>
-      window.removeEventListener("habits-updated", fetchHabits);
-  }, [fetchHabits]);
+    return () => {
+      isCancelled = true;
+    };
+  }, [isToday, localTick, selectedKey]);
 
   const completeHabit = async (habitId) => {
     if (!isToday) return;
 
     setHabits((prev) =>
-      prev.map((h) =>
-        h._id === habitId ? { ...h, done: !h.done } : h
+      prev.map((habit) =>
+        habit._id === habitId
+          ? { ...habit, done: !habit.done }
+          : habit
       )
     );
 
@@ -66,11 +79,13 @@ export function useHabitByDay() {
         habitId,
         date: selectedKey,
       });
-      window.dispatchEvent(new Event("habits-updated"));
+      triggerSync();
     } catch {
       setHabits((prev) =>
-        prev.map((h) =>
-          h._id === habitId ? { ...h, done: !h.done } : h
+        prev.map((habit) =>
+          habit._id === habitId
+            ? { ...habit, done: !habit.done }
+            : habit
         )
       );
     }
@@ -79,13 +94,14 @@ export function useHabitByDay() {
   const deleteHabit = async (habitId) => {
     if (!window.confirm("Delete this habit permanently?")) return;
 
-    setHabits((prev) => prev.filter((h) => h._id !== habitId));
+    setHabits((prev) => prev.filter((habit) => habit._id !== habitId));
 
     try {
       await api.delete(`/habits/${habitId}`);
-      window.dispatchEvent(new Event("habits-updated"));
+      triggerSync();
     } catch {
-      fetchHabits();
+      // rollback: reload the list
+      setLocalTick((t) => t + 1);
     }
   };
 

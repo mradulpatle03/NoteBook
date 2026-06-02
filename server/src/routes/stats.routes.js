@@ -9,7 +9,7 @@ import auth from "../middleware/auth.middleware.js";
 const router = express.Router();
 
 router.get("/today", auth, getTodayStatus);
-router.get("/weekly", auth, getWeeklyStatus);
+router.get("/weekly", auth, getWeeklyStatus); // TEMP
 router.get("/level", auth, getUserLevel);
 
 export default router;

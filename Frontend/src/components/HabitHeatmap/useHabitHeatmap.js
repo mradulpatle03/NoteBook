@@ -1,42 +1,48 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../../api/axios";
 import { toDateKey, getDayKey } from "./heatmap.utils";
+import { addAppDays, startOfAppDay } from "../../utils/date";
+import { useSync } from "../../context/useSync";
 
 export function useHabitHeatmap() {
+  const { syncVersion } = useSync();
   const [habits, setHabits] = useState([]);
   const [logs, setLogs] = useState({});
   const [loading, setLoading] = useState(true);
 
   const today = useMemo(() => {
-    const d = new Date();
-    d.setUTCHours(0, 0, 0, 0);
-    return d;
+    return startOfAppDay(new Date());
   }, []);
 
   const days = useMemo(() => {
-    const start = new Date(today);
-    start.setUTCDate(today.getUTCDate() - 364);
-    return Array.from({ length: 365 }, (_, i) => {
-      const d = new Date(start);
-      d.setUTCDate(start.getUTCDate() + i);
-      return d;
-    });
+    const start = addAppDays(today, -179);
+    return Array.from({ length: 180 }, (_, index) => addAppDays(start, index));
   }, [today]);
 
   useEffect(() => {
-  const startDate = toDateKey(
-    new Date(today.getTime() - 364 * 24 * 60 * 60 * 1000)
-  );
+    const startDate = toDateKey(
+      new Date(today.getTime() - 179 * 24 * 60 * 60 * 1000)
+    );
+    let isCancelled = false;
 
-  api
-    .get("/activity/range", { params: { startDate } })
-    .then((res) => {
-      setHabits(res.data.habits || []);
-      setLogs(res.data.logs || {});
-    })
-    .finally(() => setLoading(false));
-}, [today]);
+    api
+      .get("/activity/range", { params: { startDate } })
+      .then((res) => {
+        if (!isCancelled) {
+          setHabits(res.data.habits || []);
+          setLogs(res.data.logs || {});
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      });
 
+    return () => {
+      isCancelled = true;
+    };
+  }, [today, syncVersion]);
 
   const getDailyIntensity = (dateKey) => {
     let scheduled = 0;
@@ -50,8 +56,10 @@ export function useHabitHeatmap() {
 
       if (!isScheduled) return;
 
-      scheduled++;
-      if (logs[`${habit._id}_${dateKey}`]?.done) completed++;
+      scheduled += 1;
+      if (logs[`${habit._id}_${dateKey}`]?.done) {
+        completed += 1;
+      }
     });
 
     return scheduled === 0 ? 0 : (completed / scheduled) * 100;

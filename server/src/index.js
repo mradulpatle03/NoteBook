@@ -1,51 +1,13 @@
-import express from "express"
-import cors from "cors";
-import dotenv from "dotenv";
-dotenv.config();
-import {connectDB} from "./db.js";
-import authRouter from "./routes/auth.route.js";
-import userRouter from "./routes/user.route.js";
-import habitRouter from "./routes/habit.route.js";
-import activityRouter from "./routes/activity.route.js";
-import statsRouter from "./routes/stats.routes.js";
-import streakRouter from "./routes/streak.routes.js";
-import heatmapRouter from "./routes/heatmap.route.js";
-import proofRouter from "./routes/proof.routes.js";
-import teamRouter from "./routes/team.routes.js";
-import teamInviteRouter from "./routes/teamInvite.routes.js";
-import viewsRouter from "./routes/views.routes.js";
+import "dotenv/config";
+import cloudinary from "./config/cloudinary.js";
+import app from "./app.js";
+import connectDB from "./db/index.js";
 
+const PORT = process.env.PORT || 5000;
 
-console.log("Environment Variable:", process.env.PORT);
-const PORT = process.env.PORT || 8001
-connectDB()
-const app=express();
-
-app.use(cors({
-    origin:[
-        "http://localhost:5173",
-    ],
-    credentials:true,
-}));
-
-app.use(express.json());
-
-app.use("/auth", authRouter);
-app.use("/users", userRouter);
-app.use("/habits",habitRouter);
-app.use("/activity", activityRouter);
-app.use("/stats", statsRouter);
-app.use("/streak", streakRouter);
-app.use("/heatmap", heatmapRouter);
-app.use("/proof", proofRouter);
-app.use("/teams", teamRouter);
-app.use("/team-invites", teamInviteRouter);
-app.use("/views", viewsRouter);
-
-app.use("/", (req,res)=>{
-    res.send("Welcome to Habit Tracker App Server")
-})
-
-app.listen(PORT,()=>{
-    console.log("App is listening at Port",PORT)
-})
+// connect DB first, then start server
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+});

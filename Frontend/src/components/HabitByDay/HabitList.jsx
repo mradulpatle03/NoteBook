@@ -9,16 +9,16 @@ export default function HabitList({
 }) {
   if (loading) {
     return (
-      <p className="text-sm px-1 text-zinc-600 dark:text-zinc-500">
-        Loading…
+      <p className="accent-text px-1 text-xs font-bold uppercase tracking-widest animate-pulse">
+        Loading habits...
       </p>
     );
   }
 
   if (habits.length === 0) {
     return (
-      <p className="text-sm px-1 text-zinc-700 dark:text-zinc-600">
-        No habits
+      <p className="px-1 text-xs font-bold uppercase tracking-widest text-zinc-400">
+        No habits scheduled
       </p>
     );
   }

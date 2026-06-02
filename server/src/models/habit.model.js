@@ -26,6 +26,7 @@ const habitSchema = new mongoose.Schema(
       required: true,
     },
 
+    // Used ONLY when frequency === "weekly"
     days: [
       {
         type: String,
@@ -33,6 +34,7 @@ const habitSchema = new mongoose.Schema(
       },
     ],
 
+    // Used ONLY when frequency === "interval"
     intervalDays: {
       type: Number,
       min: 1,
@@ -44,7 +46,7 @@ const habitSchema = new mongoose.Schema(
       },
     },
 
-    
+    // HABIT LIFECYCLE
     startDate: {
       type: Date,
       default: () => new Date(),
@@ -52,7 +54,7 @@ const habitSchema = new mongoose.Schema(
 
     endDate: {
       type: Date,
-      default: null,
+      default: null, // null = infinite habit
     },
 
     isArchived: {
@@ -60,12 +62,24 @@ const habitSchema = new mongoose.Schema(
       default: false,
     },
 
-    // 🔐 VERIFICATION
+    // VERIFICATION
     verificationRule: {
       type: String,
-      enum: ["manual", "github", "link"],
+      enum: ["manual", "github", "link", "platform"],
       default: "manual",
       required: true,
+    },
+
+    platformSource: {
+      type: String,
+      enum: ["github", "leetcode", "codeforces", "codechef", "gfg", null],
+      default: null,
+      validate: {
+        validator: function (value) {
+          return this.verificationRule !== "platform" || !!value;
+        },
+        message: "Platform source required for platform verification",
+      },
     },
 
     githubRepo: {
